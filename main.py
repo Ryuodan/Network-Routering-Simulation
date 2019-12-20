@@ -18,12 +18,12 @@ def main():
         
         #creating main sprites
 
-        router_1=Router(10,10)
+       # router_1=Router(10,10)
         
-        sprite_factory=SpriteFactory(BLACK,100,HEIGHT)
-        
-        all_sprites_list.add(sprite_factory)
-        all_sprites_list.add(router_1)
+        sprite_factory=SpriteFactory(screen,BLACK,100,HEIGHT)
+         # paint to screen
+       # all_sprites_list.add(sprite_factory)
+      #  all_sprites_list.add(router_1)
         #starting the game loop
         while not done:
                 all_sprites_list.update()
@@ -33,7 +33,8 @@ def main():
                                 done = True
 
                 screen.fill(BACKGROUND_COLOR)
-                all_sprites_list.draw(screen)
+                sprite_factory.update()
+             #   all_sprites_list.draw(screen)
                 pygame.display.flip()
 
 
