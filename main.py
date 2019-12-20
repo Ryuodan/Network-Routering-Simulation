@@ -8,6 +8,8 @@ GREY=(210, 210 ,210)
 BACKGROUND_COLOR=GREY     #GREY
 TITLE='ROUTING NETWORK SOFTWARE'
 
+
+    
 def main():
         #window information
         pygame.init()
@@ -19,7 +21,7 @@ def main():
         #creating main sprites
 
        # router_1=Router(10,10)
-        
+        clock=pygame.time.Clock()
         sprite_factory=SpriteFactory(screen,BLACK,100,HEIGHT)
          # paint to screen
        # all_sprites_list.add(sprite_factory)
@@ -36,7 +38,7 @@ def main():
                 sprite_factory.update()
              #   all_sprites_list.draw(screen)
                 pygame.display.flip()
-
+                clock.tick(60)
 
 #routing
 if __name__ == "__main__":
