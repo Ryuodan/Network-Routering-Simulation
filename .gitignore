@@ -1,2 +1,4 @@
 env/
 .vscode/settings.json
+__pycache__/router.cpython-36.pyc
+*.pyc
