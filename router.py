@@ -7,5 +7,5 @@ class Router(pygame.sprite.Sprite):
         self.image=img
         self.rect = pygame.Rect((pos_x,pos_y), img.get_size())
         self.y=0
-
+    
     
