@@ -5,7 +5,7 @@ from program import Program
 WIDTH=1024
 HEIGHT=768
 GREY=(210, 210 ,210)
-FPS=30
+FPS=60
 BACKGROUND_COLOR=GREY     #GREY
 TITLE='ROUTING NETWORK SOFTWARE'
 
@@ -25,6 +25,7 @@ def main():
                 for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                                 done = True
+                        my_program.update_event(event)
                 # paint to screen        
          #       screen.fill(BACKGROUND_COLOR)
                 my_program.update()
