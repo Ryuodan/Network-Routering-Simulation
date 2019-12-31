@@ -7,8 +7,9 @@ import sys
 import concurrent.futures
 import algorithms as algo
 import utils
+import threading
 from tkinter import messagebox
-class PopWindow(object):
+class PopWindow:
     def __init__(self,master):
         self.master=master
         self.l=Label(master,text="Enter Weight")
@@ -31,6 +32,7 @@ def convert_lines_to_graph():
         print(line.routerId_from,'-->',line.routerId_to,' weight : ',line.weight)
         graph.add_edge(line.routerId_from,line.routerId_to,line.weight)
     return graph
+
 class ItemFactory:
     def __init__(self,screen,shelf_color,shelf_width,shelf_height,draw_width,
                 draw_height,draw_color,router_img,line_img,line_color,font,dijk_img):
@@ -51,8 +53,8 @@ class ItemFactory:
 
         #DRAW AREA 
         self.draw_img = pygame.Surface([draw_width, draw_height])
-        pygame.draw.rect(self.draw_img , draw_color, [0, 0, draw_width, draw_height]) 
-        
+        pygame.draw.rect(self.draw_img , draw_color, [0, 0, draw_width, draw_height-100]) 
+
         self.font=font
 
     def button(self,img,pos_x,pos_y,size,item_type):
@@ -70,6 +72,8 @@ class ItemFactory:
         elif self.selected=='line' and item_type=='line':
             mark_button(pos_x,pos_y,width,height)
 
+        elif self.selected=='dijsktra' and item_type=='dijsktra':
+            mark_button(pos_x,pos_y,width,height)
         #GET MOUSE POSITION
         mouse = pygame.mouse.get_pos()        
         #HANDLE ACTIONS
@@ -95,6 +99,7 @@ class ItemFactory:
 
                 #LINE SELECTED
                 if item_type=='dijsktra':
+                    self.selected='dijsktra'
                     header=['From','To','Sequence','Weight']
                     all_data=[header]
                     graph=convert_lines_to_graph()
@@ -108,6 +113,10 @@ class ItemFactory:
                             row=[inital,end,('->').join(path),total_weight]
                             all_data.append(row)
                     utils.write_csv_list('dijsktra_path_'+utils.get_current_time()+'.csv','utf-8',all_data)
+                    tk=Tk()
+                    tk.wm_withdraw()
+                    messagebox.showinfo('msg','Dijsktra Algorithm Calculated Successfully')
+                    tk.destroy()
                 #DRAW WINDOW SELECTED
                 if item_type=='draw':
                     #IF IT'S A ROUTER
@@ -177,7 +186,7 @@ class ItemFactory:
                     return obj
             if self.selected=='line':
                 if obj.pos_x+obj.image.get_size()[0] > x > obj.pos_x and obj.pos_y+obj.image.get_size()[1] > y > obj.pos_y:
-                    return obj               
+                    return obj          
         return None
 
     
@@ -197,4 +206,4 @@ class ItemFactory:
         self.button(self.router_image_obj,25,50,self.router_image_obj.get_size(),item_type='router')
         self.button(self.draw_img,100,0,self.draw_img.get_size(),item_type='draw')
         self.button(self.line_image_obj,25,150,self.line_image_obj.get_size(),item_type='line')
-        self.button(self.dijkstra_img_obj,25,400,self.dijkstra_img_obj.get_size(),item_type='dijsktra')
+        self.button(self.dijkstra_img_obj,450,675,self.dijkstra_img_obj.get_size(),item_type='dijsktra')
