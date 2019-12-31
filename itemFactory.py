@@ -2,11 +2,38 @@ import pygame
 from router import Router
 from line import Line
 import program
+from tkinter import *
+import sys
+import concurrent.futures
+import algorithms as algo
+import utils
+from tkinter import messagebox
+class PopWindow(object):
+    def __init__(self,master):
+        self.master=master
+        self.l=Label(master,text="Enter Weight")
+        self.l.pack()
+        self.e=Entry(master)
+        self.e.pack()
+        self.b=Button(master,text='Ok',command=self.entryValue)
+        self.b.pack()
+        self.weight=0
+
+    def entryValue(self):
+        self.weight=int(self.e.get())
+        self.master.destroy()
 
 
+def convert_lines_to_graph():
+    graph=algo.Graph()
+    print('all lines :')
+    for line in program.Program.all_lines:
+        print(line.routerId_from,'-->',line.routerId_to,' weight : ',line.weight)
+        graph.add_edge(line.routerId_from,line.routerId_to,line.weight)
+    return graph
 class ItemFactory:
     def __init__(self,screen,shelf_color,shelf_width,shelf_height,draw_width,
-                draw_height,draw_color,router_img,line_img,line_color):
+                draw_height,draw_color,router_img,line_img,line_color,font,dijk_img):
         #INTIAL VALUES
         self.screen=screen
         self.event=None
@@ -17,7 +44,7 @@ class ItemFactory:
         #LOAD IMAGES
         self.router_image_obj = pygame.image.load(router_img)
         self.line_image_obj = pygame.image.load(line_img)
-
+        self.dijkstra_img_obj=pygame.image.load(dijk_img)
         #SET BACKGROUND 
         self.background_img = pygame.Surface([shelf_width, shelf_height])
         pygame.draw.rect(self.background_img , shelf_color, [0, 0, shelf_width, shelf_height]) 
@@ -25,7 +52,8 @@ class ItemFactory:
         #DRAW AREA 
         self.draw_img = pygame.Surface([draw_width, draw_height])
         pygame.draw.rect(self.draw_img , draw_color, [0, 0, draw_width, draw_height]) 
-
+        
+        self.font=font
 
     def button(self,img,pos_x,pos_y,size,item_type):
         def mark_button(x1,y1,x2,y2):
@@ -65,7 +93,21 @@ class ItemFactory:
                 if item_type=='line':
                     self.selected='line'
 
-
+                #LINE SELECTED
+                if item_type=='dijsktra':
+                    header=['From','To','Sequence','Weight']
+                    all_data=[header]
+                    graph=convert_lines_to_graph()
+                    for r1 in program.Program.all_routers:
+                        for r2 in program.Program.all_routers:
+                            inital=r1.id
+                            end=r2.id
+                            if inital==end:
+                                continue
+                            path,total_weight=algo.dijsktra(graph=graph,initial=inital,end=end)
+                            row=[inital,end,('->').join(path),total_weight]
+                            all_data.append(row)
+                    utils.write_csv_list('dijsktra_path_'+utils.get_current_time()+'.csv','utf-8',all_data)
                 #DRAW WINDOW SELECTED
                 if item_type=='draw':
                     #IF IT'S A ROUTER
@@ -105,11 +147,24 @@ class ItemFactory:
                                             pos_y=middle_of_router_img_y)
                                     self.line_first_time=True
                                     self.selected=None
-                                    print(f'ana at3mlt line been router {line.routerId_from} ---> router {line.routerId_to}')
-      
+                                    #pop_window
+                                    weight=self.get_weight_popup()
+                                    line.set_weight(int(weight))
+                                    print(f'ana at3mlt line been router {line.routerId_from} ---> router {line.routerId_to} with weight {weight}')
 
 
-
+    def get_weight_popup(self):
+        def open_popup():
+            root=Tk()
+            root.eval('tk::PlaceWindow . center')
+            # Tk().wm_withdraw()
+            pop_window=PopWindow(root)
+            root.mainloop()
+            return pop_window.weight
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(open_popup)
+            weight = future.result()
+            return weight
     
     def update_event(self,event):
         self.event=event
@@ -119,21 +174,19 @@ class ItemFactory:
         for obj in program.Program.all_routers:
             if self.selected=='router':
                 if obj.pos_x+obj.image.get_size()[0] > x > obj.pos_x-obj.image.get_size()[0]  and obj.pos_y+obj.image.get_size()[1] > y > obj.pos_y-obj.image.get_size()[1]:
-#                    print('router and clicked on router')
                     return obj
             if self.selected=='line':
                 if obj.pos_x+obj.image.get_size()[0] > x > obj.pos_x and obj.pos_y+obj.image.get_size()[1] > y > obj.pos_y:
- #                   print('line and clicked on router')
                     return obj               
         return None
 
     
     def create_line(self,start_x,start_y,end_x,end_y):
-        line= Line(self.line_color,0,start_x,start_y,end_x,end_y)
+        line= Line(self.line_color,self.font,start_x,start_y,end_x,end_y)
         return line
 
     def create_router(self,pos_x,pos_y):
-        router_obj=Router(self.router_image_obj,pos_x,pos_y)
+        router_obj=Router(self.router_image_obj,self.font,pos_x,pos_y)
         print(f'ana at3mlt router with id {router_obj.id}')
         return router_obj
 
@@ -144,3 +197,4 @@ class ItemFactory:
         self.button(self.router_image_obj,25,50,self.router_image_obj.get_size(),item_type='router')
         self.button(self.draw_img,100,0,self.draw_img.get_size(),item_type='draw')
         self.button(self.line_image_obj,25,150,self.line_image_obj.get_size(),item_type='line')
+        self.button(self.dijkstra_img_obj,25,400,self.dijkstra_img_obj.get_size(),item_type='dijsktra')
