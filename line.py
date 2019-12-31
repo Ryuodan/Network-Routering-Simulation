@@ -9,19 +9,19 @@ class Line:
         self.end_x=end_x
         self.end_y=end_y
         self.color=color
-        self.line_connected_from=None
-        self.line_connected_to=None
+        self.routerId_from=None
+        self.routerId_to=None
 
-    def connect_from(self,routerId,start_x,start_y):
-        self.line_connected_from=routerId
-        self.start_x=start_x
-        self.start_y=start_y
+    def connect_from(self,routerId,pos_x,pos_y):
+        self.routerId_from=routerId
+        self.start_x=pos_x
+        self.start_y=pos_y
 
-    def connect_to(self,routerId,end_x,end_y):
-        self.line_connected_to=routerId
-        self.end_x=end_x
-        self.end_y=end_y
+    def connect_to(self,routerId,pos_x,pos_y):
+        self.routerId_to=routerId
+        self.end_x=pos_x
+        self.end_y=pos_y
 
     def draw(self,screen):
-        if self.line_connected_from is not None and self.line_connected_to is not None:
+        if self.routerId_from is not None and self.routerId_to is not None:
             pygame.draw.line(screen,self.color,(self.start_x,self.start_y),(self.end_x,self.end_y))
