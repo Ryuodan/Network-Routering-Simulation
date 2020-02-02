@@ -85,9 +85,10 @@ def dijsktra(graph, initial, end):
     path = []
     while current_node is not None:
         path.append(current_node)
-        total_weight+=shortest_paths[current_node][1]
         next_node = shortest_paths[current_node][0]
         current_node = next_node
     # Reverse path
     path = path[::-1]
+    for idx in range(len(path)-1):
+        total_weight+=graph.weights[(path[idx],path[idx+1])]
     return path,total_weight
