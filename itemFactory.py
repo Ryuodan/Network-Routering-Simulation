@@ -35,7 +35,8 @@ def convert_lines_to_graph():
 
 class ItemFactory:
     def __init__(self,screen,shelf_color,shelf_width,shelf_height,draw_width,
-                draw_height,draw_color,router_img,line_img,line_color,font,dijk_img):
+                draw_height,draw_color,router_img,line_img,line_color,font,dijk_img,
+                delete_img):
         #INTIAL VALUES
         self.screen=screen
         self.event=None
@@ -47,6 +48,7 @@ class ItemFactory:
         self.router_image_obj = pygame.image.load(router_img)
         self.line_image_obj = pygame.image.load(line_img)
         self.dijkstra_img_obj=pygame.image.load(dijk_img)
+        self.delete_img=pygame.image.load(delete_img)
         #SET BACKGROUND 
         self.background_img = pygame.Surface([shelf_width, shelf_height])
         pygame.draw.rect(self.background_img , shelf_color, [0, 0, shelf_width, shelf_height]) 
@@ -74,6 +76,9 @@ class ItemFactory:
 
         elif self.selected=='dijsktra' and item_type=='dijsktra':
             mark_button(pos_x,pos_y,width,height)
+
+        elif self.selected=='delete' and item_type=='delete':
+            mark_button(pos_x,pos_y,width,height)
         #GET MOUSE POSITION
         mouse = pygame.mouse.get_pos()        
         #HANDLE ACTIONS
@@ -97,6 +102,8 @@ class ItemFactory:
                 if item_type=='line':
                     self.selected='line'
 
+                if item_type=='delete':
+                    self.selected='delete'
                 #LINE SELECTED
                 if item_type=='dijsktra':
                     self.selected='dijsktra'
@@ -119,6 +126,12 @@ class ItemFactory:
                     tk.destroy()
                 #DRAW WINDOW SELECTED
                 if item_type=='draw':
+
+                    if self.selected=='delete':
+                        obj=self.clicked_on_router(mouse[0],mouse[1])
+                        #IF IT'S INSIDE A ROUTER
+                        if obj is not None:
+                            self.delete_router(router_obj=obj)                        
                     #IF IT'S A ROUTER
                     if self.selected=='router':
                         if self.clicked_on_router(mouse[0],mouse[1]) is not None:
@@ -184,7 +197,7 @@ class ItemFactory:
             if self.selected=='router':
                 if obj.pos_x+obj.image.get_size()[0] > x > obj.pos_x-obj.image.get_size()[0]  and obj.pos_y+obj.image.get_size()[1] > y > obj.pos_y-obj.image.get_size()[1]:
                     return obj
-            if self.selected=='line':
+            if self.selected=='line' or self.selected=='delete':
                 if obj.pos_x+obj.image.get_size()[0] > x > obj.pos_x and obj.pos_y+obj.image.get_size()[1] > y > obj.pos_y:
                     return obj          
         return None
@@ -199,11 +212,28 @@ class ItemFactory:
         print(f'ana at3mlt router with id {router_obj.id}')
         return router_obj
 
+    def delete_router(self,router_obj):
+        program.Program.all_routers.remove(router_obj)
+        program.Program.all_sprites.remove(router_obj)
+        print(f'router {router_obj.id} is removed')
+        lines_to_be_removed=[]
+        for line in program.Program.all_lines:
+            if line.routerId_from==router_obj.id or line.routerId_to==router_obj.id:
+                lines_to_be_removed.append(line)
+        for x in lines_to_be_removed:
+            print(f'line from {x.routerId_from} to {x.routerId_to} is removed')
+            program.Program.all_lines.remove(x)
+        
+
 
     def update(self):
         self.screen.blit(self.background_img, (0,0))
         self.screen.blit(self.draw_img,(100,0))
-        self.button(self.router_image_obj,25,50,self.router_image_obj.get_size(),item_type='router')
         self.button(self.draw_img,100,0,self.draw_img.get_size(),item_type='draw')
+
+        self.button(self.router_image_obj,25,50,self.router_image_obj.get_size(),item_type='router')
         self.button(self.line_image_obj,25,150,self.line_image_obj.get_size(),item_type='line')
+        self.button(self.delete_img,25,250,self.delete_img.get_size(),item_type='delete')
+        
         self.button(self.dijkstra_img_obj,450,675,self.dijkstra_img_obj.get_size(),item_type='dijsktra')
+        

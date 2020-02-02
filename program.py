@@ -22,12 +22,14 @@ class Program:
         self.router_img_path='sprites/router50.png'
         self.line_img_path='sprites/line.png'
         self.djistr_img='sprites/dijkstra_img.png'
+        self.delete_img='sprites/delete.png'
 
         self.itemFactory=ItemFactory(font=font,screen=self.screen,shelf_color=BLACK,
                         shelf_width=self.factory_width,shelf_height=self.factory_height,
                         draw_color=WHITE,draw_width=self.draw_window_width,
                         draw_height=self.draw_window_height,router_img=self.router_img_path,
-                        line_img=self.line_img_path,line_color=BLACK,dijk_img=self.djistr_img)
+                        line_img=self.line_img_path,line_color=BLACK,dijk_img=self.djistr_img,
+                        delete_img=self.delete_img)
 
 
     def update_event(self,event):
